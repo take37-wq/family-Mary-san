@@ -1,36 +1,62 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 app.use(cors());
 app.use(express.json());
-
-// 静的ファイルを public フォルダから提供
 app.use(express.static('public'));
 
 let words = [];
+const usedNicknames = new Set(); // 使用済みニックネーム（正規化済み）
 
 app.post('/submit', (req, res) => {
-  const { nickname, word } = req.body;
+  const rawNickname = req.body.nickname;
+  const rawWord = req.body.word;
 
-  if (!nickname || !word) {
-    return res.status(400).json({ message: 'ニックネームと単語が必要です' });
+  if (!rawNickname || !rawWord) {
+    return res.status(400).json({ message: 'ニックネームと単語を入力してください。' });
   }
 
-  words.push({ nickname, word });
+  // 正規化：trim + 小文字化
+  const nickname = rawNickname.trim().toLowerCase();
+  const word = rawWord.trim();
+
+  // デバッグ出力
+  console.log(`[受信] ニックネーム: "${nickname}", 単語: "${word}"`);
+
+  if (usedNicknames.has(nickname)) {
+    console.log(`[拒否] "${nickname}" はすでに使用されました`);
+    return res.status(400).json({ message: 'このニックネームはすでに使用されました。' });
+  }
+
+  usedNicknames.add(nickname);
+  words.push({ nickname: rawNickname.trim(), word });
+
+  console.log(`[登録] "${nickname}" を使用済みに追加`);
+  console.log(`[現在の参加者数] ${words.length}/3`);
 
   if (words.length === 3) {
     const sentence = words.map(w => w.word).join(' ');
-    const result = { sentence, words: [...words] };
+    console.log(`[完成] 文: ${sentence}`);
+    io.emit('sentence', sentence);
     words = [];
-    return res.json({ complete: true, result });
+    usedNicknames.clear();
+    console.log(`[リセット] wordsとニックネームを初期化`);
   }
 
-  res.json({ complete: false, count: words.length });
+  res.json({ message: '受け取りました' });
+});
+
+io.on('connection', (socket) => {
+  console.log('クライアントが接続しました');
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`サーバーがポート${PORT}で起動しました`);
 });
