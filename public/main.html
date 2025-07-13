@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family Words</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="max-w-md w-full bg-white p-6 rounded shadow">
@@ -20,6 +21,43 @@
     <p id="result" class="mt-2 font-bold text-center"></p>
   </div>
 
-  <script src="script.js" defer></script>
-</body>
-</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  UW PICO 5.09                    File: main.html                     Modified  
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="max-w-md w-full bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold text-center mb-4">Family Words</h1>
+  
+    <input id="nickname" placeholder="ニックネーム" class="w-full p-2 mb-2 bord$
+    <input id="word" placeholder="単語を入力" class="w-full p-2 mb-2 border rou$
+    <button onclick="submitWord()" class="bg-blue-500 text-white p-2 rounded w-$
+      送信
+    </button>
+
+    <p id="message" class="mt-4 text-green-600"></p>
+    <p id="result" class="mt-2 font-bold text-center"></p>
+  </div>
+    
+    
+    
+      
+    
+
+^G Get Help  ^O WriteOut  ^R Read File ^Y Prev Pg   ^K Cut Text  ^C Cur Pos   
+^X Exit      ^J Justify   ^W Where is  ^V Next Pg   ^U UnCut Text^T To Spell  
