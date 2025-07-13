@@ -1,12 +1,12 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// public フォルダからHTMLやJSを配信
+// 静的ファイルを public フォルダから提供
 app.use(express.static(path.join(__dirname, 'public')));
 
 let words = [];
@@ -23,7 +23,7 @@ app.post('/submit', (req, res) => {
   if (words.length === 3) {
     const sentence = words.map(w => w.word).join(' ');
     const result = { sentence, words: [...words] };
-    words = []; // リセット
+    words = [];
     return res.json({ complete: true, result });
   }
 
