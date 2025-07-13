@@ -1,4 +1,3 @@
-// script.js
 async function submitWord() {
   const nickname = document.getElementById('nickname').value.trim();
   const word = document.getElementById('word').value.trim();
@@ -10,7 +9,9 @@ async function submitWord() {
     return;
   }
 
-  const response = await fetch('http://localhost:3000/submit', {
+  // ✅ response をちゃんと変数に入れる
+  const response = await fetch('https://family-words.onrender.com/submit', {
+
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ nickname, word })
