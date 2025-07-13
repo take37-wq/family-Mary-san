@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
+const path = require('path'); // ★ 追加
 
 const app = express();
 const server = http.createServer(app);
@@ -10,6 +11,11 @@ const io = new Server(server);
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+
+// ★ main.html を表示するルートを追加
+app.get('/main', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'main.html'));
+});
 
 let words = [];
 const usedNicknames = new Set(); // 使用済みニックネーム（正規化済み）
@@ -22,11 +28,9 @@ app.post('/submit', (req, res) => {
     return res.status(400).json({ message: 'ニックネームと単語を入力してください。' });
   }
 
-  // 正規化：trim + 小文字化
   const nickname = rawNickname.trim().toLowerCase();
   const word = rawWord.trim();
 
-  // デバッグ出力
   console.log(`[受信] ニックネーム: "${nickname}", 単語: "${word}"`);
 
   if (usedNicknames.has(nickname)) {
