@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // 静的ファイルを public フォルダから提供
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 let words = [];
 
