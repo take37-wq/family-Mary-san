@@ -1,40 +1,47 @@
-const socket = io();
-
-function submitWord() {
-  const nickname = document.getElementById('nickname').value;
-  const word = document.getElementById('word').value;
-  const message = document.getElementById('message');
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('wordForm');
+  const nicknameInput = document.getElementById('nickname');
+  const wordInput = document.getElementById('word');
+  const status = document.getElementById('status');
   const result = document.getElementById('result');
 
-  if (!nickname || !word) {
-    message.textContent = 'ニックネームと単語を両方入力してください。';
-    return;
-  }
+  const socket = io();
 
-  fetch('/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nickname, word })
-  })
-  .then(res => {
-    if (!res.ok) {
-      return res.json().then(err => { throw err; });
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const nickname = nicknameInput.value.trim();
+    const word = wordInput.value.trim();
+
+    if (!nickname || !word) {
+      alert('ニックネームと単語を入力してください。');
+      return;
     }
-    return res.json();
-  })
-  .then(data => {
-    message.textContent = data.message;
-    message.style.color = 'green';
-    document.getElementById('word').value = '';
-  })
-  .catch(err => {
-    message.textContent = err.message || 'エラーが発生しました';
-    message.style.color = 'red';
-  });
-}
 
-// サーバーから文が届いたとき表示
-socket.on('sentence', (sentence) => {
-  const result = document.getElementById('result');
-  result.textContent = `できた文：${sentence}`;
+    try {
+      const response = await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, word })
+      });
+
+      const resultJson = await response.json();
+
+      if (!response.ok) {
+        alert(resultJson.message || '送信に失敗しました。');
+        return;
+      }
+
+      status.textContent = '送信しました！';
+      wordInput.value = '';
+    } catch (err) {
+      console.error('エラー:', err);
+      alert('サーバーに接続できませんでした。');
+    }
+  });
+
+  socket.on('sentence', (sentence) => {
+    result.textContent = `完成した文：${sentence}`;
+    result.classList.remove('hidden');
+  });
 });
