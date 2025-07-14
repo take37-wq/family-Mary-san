@@ -22,6 +22,21 @@ function getRandomNumber() {
   return rand;
 }
 
+app.post('/preassign', (req, res) => {
+  const { nickname } = req.body;
+  if (!nickname) return res.status(400).json({ message: 'ニックネームを入力してください。' });
+  if (Array.from(usedNicknames.values()).includes(nickname)) {
+    return res.status(400).json({ message: 'このニックネームはすでに使われています。' });
+  }
+  if (usedNumbers.size >= 3) {
+    return res.status(400).json({ message: 'すでに3人が入力済みです。' });
+  }
+  const number = getRandomNumber();
+  usedNicknames.set(number, nickname);
+  io.emit('statusUpdate', Object.fromEntries(usedNicknames));
+  res.json({ number });
+});
+
 app.post('/submit', (req, res) => {
   const { nickname, word } = req.body;
 
@@ -30,18 +45,11 @@ app.post('/submit', (req, res) => {
   }
 
   if (Array.from(usedNicknames.values()).includes(nickname)) {
-    return res.status(400).json({ message: 'このニックネームはすでに使われています。' });
+    const number = [...usedNicknames.entries()].find(([k, v]) => v === nickname)?.[0];
+    words.push({ number, word });
+  } else {
+    return res.status(400).json({ message: '事前に番号が割り当てられていません。' });
   }
-
-  if (usedNumbers.size >= 3) {
-    return res.status(400).json({ message: 'すでに3人が入力済みです。' });
-  }
-
-  const number = getRandomNumber();
-  usedNicknames.set(number, nickname);
-  words.push({ number, word });
-
-  io.emit('statusUpdate', Object.fromEntries(usedNicknames));
 
   if (words.length === 3) {
     words.sort((a, b) => a.number - b.number);
@@ -52,7 +60,7 @@ app.post('/submit', (req, res) => {
     words = [];
   }
 
-  res.json({ message: '受け取りました', number });
+  res.json({ message: '受け取りました' });
 });
 
 io.on('connection', (socket) => {
