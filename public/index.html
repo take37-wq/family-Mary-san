@@ -26,4 +26,14 @@
 
 <script>
   function go() {
-    const code = document.getElementById('co
+    const code = document.getElementById('code').value;
+    const error = document.getElementById('error');
+    if (code === 'take0307') {
+      window.location.href = 'main.html';
+    } else {
+      error.textContent = '合言葉が違います。';
+    }
+  }
+</script>
+</body>
+</html>
