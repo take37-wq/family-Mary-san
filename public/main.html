@@ -1,26 +1,42 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family Words</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script defer src="script.js"></script>
-  <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    input, button { padding: 0.5rem; margin: 0.5rem 0; width: 100%; max-width: 300px; }
-    ul { list-style: none; padding-left: 0; }
-  </style>
 </head>
-<body>
-  <h1>単語を入力してください</h1>
-  <form id="wordForm">
-    <input type="text" id="nickname" placeholder="ニックネーム">
-    <input type="text" id="word" placeholder="単語">
-    <button type="submit">送信</button>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-10">
+  <h1 class="text-3xl font-bold mb-6">単語を入力してください</h1>
+
+  <form id="wordForm" class="flex flex-col gap-4 items-center">
+    <input id="nickname" type="text" placeholder="ニックネーム" required
+           class="border border-gray-400 px-4 py-2 rounded w-64" />
+    <input id="word" type="text" placeholder="単語" required
+           class="border border-gray-400 px-4 py-2 rounded w-64" />
+    <button type="submit"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      送信
+    </button>
   </form>
 
-  <h2>入力状況</h2>
-  <ul id="statusList"></ul>
+  <!-- 番号表示 -->
+  <p id="numberMessage" class="text-lg font-bold text-blue-600 mt-4"></p>
+
+  <!-- 入力状況 -->
+  <div id="status" class="mt-6 text-center">
+    <p class="text-xl font-semibold">入力状況</p>
+    <ul class="mt-2 space-y-1 text-gray-700">
+      <li id="status1">番号1：未入力</li>
+      <li id="status2">番号2：未入力</li>
+      <li id="status3">番号3：未入力</li>
+    </ul>
+  </div>
+
+  <!-- 生成された文章 -->
+  <div id="sentenceDisplay" class="mt-6 text-green-700 font-bold text-xl"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
