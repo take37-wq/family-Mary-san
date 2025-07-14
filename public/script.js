@@ -8,14 +8,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const socket = io();
 
+  let assignedNumber = null;
+  let assignedNickname = '';
+
+  nicknameInput.addEventListener('blur', async () => {
+    const nickname = nicknameInput.value.trim();
+    if (!nickname || nickname === assignedNickname) return;
+
+    try {
+      const response = await fetch('/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.message || '参加できませんでした');
+        nicknameInput.value = '';
+        return;
+      }
+
+      assignedNumber = result.number;
+      assignedNickname = nickname;
+      myNumberDisplay.textContent = `あなたの番号は ${assignedNumber} です。`;
+    } catch (err) {
+      alert('サーバーに接続できませんでした。');
+    }
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const nickname = nicknameInput.value.trim();
     const word = wordInput.value.trim();
 
-    if (!nickname || !word) {
-      alert('ニックネームと単語を入力してください。');
+    if (!nickname || !word || assignedNumber === null) {
+      alert('ニックネームを入力して番号を取得してください。');
       return;
     }
 
@@ -29,19 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = await response.json();
 
       if (!response.ok) {
-        alert(result.message || '送信失敗');
+        alert(result.message || '送信に失敗しました');
         return;
       }
 
-      myNumberDisplay.textContent = `あなたの番号は ${result.number} です。`;
       wordInput.value = '';
     } catch (err) {
       alert('サーバーエラー');
     }
-  });
-
-  socket.on('sentence', (sentence) => {
-    sentenceDisplay.textContent = `完成した文：${sentence}`;
   });
 
   socket.on('statusUpdate', (statusMap) => {
@@ -49,5 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
       ([num, name]) => `番号${num}: ${name} が入力済み`
     );
     status.textContent = lines.join('\n');
+  });
+
+  socket.on('sentence', (sentence) => {
+    sentenceDisplay.textContent = `完成した文：${sentence}`;
   });
 });
