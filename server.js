@@ -59,10 +59,6 @@ io.on('connection', (socket) => {
   console.log('クライアントが接続しました');
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`サーバーがポート${PORT}で起動しました`);

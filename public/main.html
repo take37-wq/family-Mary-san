@@ -4,39 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Family Words</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script defer src="script.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start py-10">
-  <h1 class="text-3xl font-bold mb-6">単語を入力してください</h1>
-
-  <form id="wordForm" class="flex flex-col gap-4 items-center">
-    <input id="nickname" type="text" placeholder="ニックネーム" required
-           class="border border-gray-400 px-4 py-2 rounded w-64" />
-    <input id="word" type="text" placeholder="単語" required
-           class="border border-gray-400 px-4 py-2 rounded w-64" />
-    <button type="submit"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-      送信
-    </button>
-  </form>
-
-  <!-- 番号表示 -->
-  <p id="numberMessage" class="text-lg font-bold text-blue-600 mt-4"></p>
-
-  <!-- 入力状況 -->
-  <div id="status" class="mt-6 text-center">
-    <p class="text-xl font-semibold">入力状況</p>
-    <ul class="mt-2 space-y-1 text-gray-700">
-      <li id="status1">番号1：未入力</li>
-      <li id="status2">番号2：未入力</li>
-      <li id="status3">番号3：未入力</li>
-    </ul>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
+  <div class="bg-white shadow-md rounded p-6 w-full max-w-lg">
+    <h1 class="text-2xl font-bold text-center mb-4">Family Words</h1>
+    <form id="wordForm" class="space-y-4">
+      <div>
+        <label for="nickname" class="block text-sm font-medium text-gray-700">ニックネーム</label>
+        <input type="text" id="nickname" class="w-full px-3 py-2 border rounded-md" required />
+      </div>
+      <div>
+        <label for="word" class="block text-sm font-medium text-gray-700">単語</label>
+        <input type="text" id="word" class="w-full px-3 py-2 border rounded-md" required />
+      </div>
+      <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
+        送信
+      </button>
+    </form>
+    <div id="assignedNumber" class="mt-4 text-center text-blue-600 font-semibold"></div>
+    <div id="statusList" class="mt-4 text-center text-sm text-gray-600"></div>
+    <div id="result" class="mt-4 text-lg text-green-700 text-center font-bold"></div>
   </div>
-
-  <!-- 生成された文章 -->
-  <div id="sentenceDisplay" class="mt-6 text-green-700 font-bold text-xl"></div>
-
-  <script src="script.js"></script>
 </body>
 </html>
