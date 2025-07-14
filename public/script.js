@@ -2,11 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('wordForm');
   const nicknameInput = document.getElementById('nickname');
   const wordInput = document.getElementById('word');
-  const statusList = document.getElementById('statusList');
+  const myNumberDisplay = document.getElementById('myNumberDisplay');
+  const sentenceDisplay = document.getElementById('sentenceDisplay');
+  const status = document.getElementById('status');
 
   const socket = io();
 
-  form.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const nickname = nicknameInput.value.trim();
@@ -27,29 +29,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const result = await response.json();
 
       if (!response.ok) {
-        alert(result.message || '送信に失敗しました。');
+        alert(result.message || '送信失敗');
         return;
       }
 
-      alert(`送信が完了しました！ あなたの番号は${result.number}です`);
+      myNumberDisplay.textContent = `あなたの番号は ${result.number} です。`;
       wordInput.value = '';
     } catch (err) {
-      console.error('エラー:', err);
-      alert('サーバーに接続できませんでした。');
+      alert('サーバーエラー');
     }
   });
 
   socket.on('sentence', (sentence) => {
-    alert(`完成した文：${sentence}`);
-    statusList.innerHTML = '';
+    sentenceDisplay.textContent = `完成した文：${sentence}`;
   });
 
   socket.on('statusUpdate', (statusMap) => {
-    statusList.innerHTML = '';
-    for (let i = 1; i <= 3; i++) {
-      const li = document.createElement('li');
-      li.textContent = statusMap[i] ? `番号${i}：${statusMap[i]}` : `番号${i}：未入力`;
-      statusList.appendChild(li);
-    }
+    const lines = Object.entries(statusMap).map(
+      ([num, name]) => `番号${num}: ${name} が入力済み`
+    );
+    status.textContent = lines.join('\n');
   });
 });

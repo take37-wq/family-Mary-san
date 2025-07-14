@@ -3,6 +3,7 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -26,7 +27,7 @@ app.post('/submit', (req, res) => {
   const { nickname, word } = req.body;
 
   if (!nickname || !word) {
-    return res.status(400).json({ message: 'ニックネームと単語を入力してください。' });
+    return res.status(400).json({ message: 'ニックネームと単語は必須です。' });
   }
 
   if (Array.from(usedNicknames.values()).includes(nickname)) {
@@ -34,7 +35,7 @@ app.post('/submit', (req, res) => {
   }
 
   if (usedNumbers.size >= 3) {
-    return res.status(400).json({ message: 'すでに3人が入力済みです。' });
+    return res.status(400).json({ message: 'すでに3人入力済みです。' });
   }
 
   const number = getRandomNumber();
@@ -57,10 +58,6 @@ app.post('/submit', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('クライアントが接続しました');
-});
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
