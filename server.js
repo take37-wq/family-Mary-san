@@ -12,8 +12,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const usedNumbers = new Set();
-const usedNicknames = new Map();
+let usedNumbers = new Set();
+let usedNicknames = new Map();
 let words = [];
 
 function getRandomNumber() {
@@ -30,7 +30,7 @@ app.post('/submit', (req, res) => {
     return res.status(400).json({ message: 'ニックネームと単語を入力してください。' });
   }
 
-  if (Array.from(usedNicknames.values()).includes(nickname)) {
+  if ([...usedNicknames.values()].includes(nickname)) {
     return res.status(400).json({ message: 'このニックネームはすでに使われています。' });
   }
 
@@ -43,27 +43,18 @@ app.post('/submit', (req, res) => {
   words.push({ number, word });
 
   io.emit('statusUpdate', Object.fromEntries(usedNicknames));
+  io.emit('yourNumber', { number, nickname });
 
   if (words.length === 3) {
     words.sort((a, b) => a.number - b.number);
     const sentence = words.map(w => w.word).join(' ');
     io.emit('sentence', sentence);
-
-    // ✅ 状態リセット（これがないと次の人が入れない）
     usedNumbers.clear();
     usedNicknames.clear();
     words = [];
   }
 
   res.json({ message: '受け取りました', number });
-});
-
-app.post('/reset', (req, res) => {
-  usedNumbers.clear();
-  usedNicknames.clear();
-  words = [];
-  io.emit('statusUpdate', {});
-  res.json({ message: 'リセットしました' });
 });
 
 io.on('connection', (socket) => {
