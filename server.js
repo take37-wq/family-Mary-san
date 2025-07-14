@@ -12,8 +12,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let usedNumbers = new Set();
-let usedNicknames = new Map();
+const usedNumbers = new Set();
+const usedNicknames = new Map();
 let words = [];
 
 function getRandomNumber() {
@@ -23,6 +23,24 @@ function getRandomNumber() {
   return rand;
 }
 
+app.post('/number-check', (req, res) => {
+  const { nickname } = req.body;
+  if (!nickname) return res.status(400).json({ message: 'ニックネームが必要です。' });
+
+  for (const [num, name] of usedNicknames.entries()) {
+    if (name === nickname) return res.json({ number: num });
+  }
+
+  if (usedNumbers.size >= 3) {
+    return res.status(400).json({ message: 'すでに3人が参加しています。' });
+  }
+
+  const number = getRandomNumber();
+  usedNicknames.set(number, nickname);
+  io.emit('statusUpdate', Object.fromEntries(usedNicknames));
+  return res.json({ number });
+});
+
 app.post('/submit', (req, res) => {
   const { nickname, word } = req.body;
 
@@ -31,19 +49,15 @@ app.post('/submit', (req, res) => {
   }
 
   if ([...usedNicknames.values()].includes(nickname)) {
-    return res.status(400).json({ message: 'このニックネームはすでに使われています。' });
+    if (words.some(w => w.nickname === nickname)) {
+      return res.status(400).json({ message: 'このニックネームはすでに送信済みです。' });
+    }
   }
 
-  if (usedNumbers.size >= 3) {
-    return res.status(400).json({ message: 'すでに3人が入力済みです。' });
-  }
+  const number = [...usedNicknames.entries()].find(([_, name]) => name === nickname)?.[0];
+  if (!number) return res.status(400).json({ message: '番号が未登録です。' });
 
-  const number = getRandomNumber();
-  usedNicknames.set(number, nickname);
-  words.push({ number, word });
-
-  io.emit('statusUpdate', Object.fromEntries(usedNicknames));
-  io.emit('yourNumber', { number, nickname });
+  words.push({ number, word, nickname });
 
   if (words.length === 3) {
     words.sort((a, b) => a.number - b.number);

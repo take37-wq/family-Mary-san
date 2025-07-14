@@ -3,27 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>単語入力</title>
+  <title>Family Words - メイン</title>
   <script src="/socket.io/socket.io.js"></script>
   <script defer src="script.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
-  <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
-    <h1 class="text-xl font-bold text-center mb-4 text-blue-700">Family Words</h1>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6 space-y-4">
+    <h1 class="text-xl font-bold text-center text-blue-700">Family Words</h1>
+
     <form id="wordForm" class="space-y-4">
       <input id="nickname" type="text" placeholder="ニックネーム"
-             class="w-full border px-3 py-2 rounded" required />
+             class="w-full px-3 py-2 border rounded focus:outline-none" />
       <input id="word" type="text" placeholder="単語"
-             class="w-full border px-3 py-2 rounded" required />
+             class="w-full px-3 py-2 border rounded focus:outline-none" />
       <button type="submit"
               class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
         送信
       </button>
     </form>
 
-    <div class="mt-6 text-sm text-gray-700" id="numberStatus"></div>
-    <div class="mt-2 text-sm text-green-700" id="sentenceArea"></div>
+    <button type="button" id="checkNumber"
+            class="w-full bg-yellow-400 text-white py-2 rounded hover:bg-yellow-500">
+      自分の番号を確認
+    </button>
+
+    <p id="numberStatus" class="text-center text-lg text-blue-700 font-semibold"></p>
+    <div id="nicknames" class="text-center text-sm text-gray-600"></div>
+    <div id="sentence" class="text-center mt-4 text-xl font-bold text-green-700"></div>
   </div>
 </body>
 </html>
