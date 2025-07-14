@@ -1,6 +1,7 @@
 {
   "name": "family-words",
   "version": "1.0.0",
+  "description": "Family Words Game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -8,6 +9,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.7.2"
   }
 }
