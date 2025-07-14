@@ -2,26 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('wordForm');
   const nicknameInput = document.getElementById('nickname');
   const wordInput = document.getElementById('word');
-  const numberStatus = document.getElementById('numberStatus');
-  const sentenceArea = document.getElementById('sentenceArea');
+  const statusList = document.getElementById('statusList');
 
   const socket = io();
-
-  socket.on('statusUpdate', (data) => {
-    const lines = Object.entries(data)
-      .sort((a, b) => a[0] - b[0])
-      .map(([num, name]) => `番号 ${num}: ${name}`);
-    numberStatus.textContent = `入力済み：\n${lines.join('\n')}`;
-  });
-
-  socket.on('sentence', (sentence) => {
-    sentenceArea.textContent = `完成した文：${sentence}`;
-  });
-
-  socket.on('yourNumber', ({ number, nickname }) => {
-    const existing = numberStatus.textContent;
-    numberStatus.textContent = `あなた（${nickname}）の番号は ${number} です\n` + existing;
-  });
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -37,9 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await fetch('/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickname, word }),
       });
 
@@ -50,10 +31,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      alert(`送信が完了しました！ あなたの番号は${result.number}です`);
       wordInput.value = '';
     } catch (err) {
       console.error('エラー:', err);
       alert('サーバーに接続できませんでした。');
+    }
+  });
+
+  socket.on('sentence', (sentence) => {
+    alert(`完成した文：${sentence}`);
+    statusList.innerHTML = '';
+  });
+
+  socket.on('statusUpdate', (statusMap) => {
+    statusList.innerHTML = '';
+    for (let i = 1; i <= 3; i++) {
+      const li = document.createElement('li');
+      li.textContent = statusMap[i] ? `番号${i}：${statusMap[i]}` : `番号${i}：未入力`;
+      statusList.appendChild(li);
     }
   });
 });

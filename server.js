@@ -3,7 +3,6 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
@@ -12,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let usedNumbers = new Set();
-let usedNicknames = new Map();
+const usedNumbers = new Set();
+const usedNicknames = new Map();
 let words = [];
 
 function getRandomNumber() {
@@ -30,7 +29,7 @@ app.post('/submit', (req, res) => {
     return res.status(400).json({ message: 'ニックネームと単語を入力してください。' });
   }
 
-  if ([...usedNicknames.values()].includes(nickname)) {
+  if (Array.from(usedNicknames.values()).includes(nickname)) {
     return res.status(400).json({ message: 'このニックネームはすでに使われています。' });
   }
 
@@ -43,7 +42,6 @@ app.post('/submit', (req, res) => {
   words.push({ number, word });
 
   io.emit('statusUpdate', Object.fromEntries(usedNicknames));
-  io.emit('yourNumber', { number, nickname });
 
   if (words.length === 3) {
     words.sort((a, b) => a.number - b.number);
@@ -59,6 +57,10 @@ app.post('/submit', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('クライアントが接続しました');
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
