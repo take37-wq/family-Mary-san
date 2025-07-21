@@ -1,0 +1,13 @@
+{
+  "name": "family-words",
+  "version": "1.0.0",
+  "description": "家族協力型文章生成ゲーム",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}

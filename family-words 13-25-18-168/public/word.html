@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Family Words - 単語入力</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-100 min-h-screen flex flex-col items-center justify-center">
+  <h1 class="text-2xl font-bold mb-4">Family Words</h1>
+  <div class="mb-4">
+    <span class="font-semibold">ニックネーム:</span>
+    <span id="nicknameDisplay"></span>
+  </div>
+
+  <form id="wordForm" class="mb-4">
+    <input id="wordInput" type="text" placeholder="単語を入力" class="border px-3 py-1" required />
+    <button type="submit" class="ml-2 bg-green-500 text-white px-4 py-1 rounded">送信</button>
+  </form>
+
+  <div class="mb-4">
+    <h2 class="font-bold">みんなの単語:</h2>
+    <ul id="wordList" class="list-disc ml-5"></ul>
+  </div>
+
+  <div id="sentenceDisplay" class="text-xl font-bold text-blue-700"></div>
+
+  <button id="exitBtn" class="mt-6 bg-red-500 text-white px-4 py-2 rounded">退出</button>
+
+  <script>
+    const nickname = localStorage.getItem('nickname');
+
+    if (!nickname) {
+      alert('ニックネームがありません。合言葉画面に戻ります。');
+      window.location.href = '/index.html';
+    }
+
+    document.getElementById('nicknameDisplay').textContent = nickname;
+
+    const socket = io();
+    socket.emit('joinRoom', nickname);
+
+    const wordForm = document.getElementById('wordForm');
+    const wordInput = document.getElementById('wordInput');
+    const wordList = document.getElementById('wordList');
+    const sentenceDisplay = document.getElementById('sentenceDisplay');
+    const exitBtn = document.getElementById('exitBtn');
+
+    wordForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const word = wordInput.value.trim();
+      if (word) {
+        socket.emit('submitWord', { nickname, word });
+        wordInput.value = '';
+      }
+    });
+
+    socket.on('updateWords', words => {
+      wordList.innerHTML = '';
+      words.forEach(({ nickname, word }) => {
+        const li = document.createElement('li');
+        li.textContent = `${nickname}: ${word}`;
+        wordList.appendChild(li);
+      });
+    });
+
+    socket.on('finalSentence', sentence => {
+      sentenceDisplay.textContent = `完成した文: ${sentence}`;
+    });
+
+    exitBtn.addEventListener('click', () => {
+      socket.emit('exitRoom', nickname);
+      localStorage.removeItem('nickname');
+      window.location.href = '/index.html';
+    });
+  </script>
+</body>
+</html>

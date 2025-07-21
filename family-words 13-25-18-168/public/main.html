@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>単語入力・文章生成</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  body { font-family: sans-serif; padding: 20px; max-width: 400px; margin: auto; }
+  input, button { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; }
+  #wordsList { margin-top: 20px; }
+  #finalSentence { margin-top: 30px; font-weight: bold; font-size: 18px; }
+</style>
+</head>
+<body>
+<h2>単語を一つ入力してください</h2>
+<div>ニックネーム: <span id="nicknameDisplay"></span></div>
+<form id="wordForm">
+  <input type="text" id="wordInput" placeholder="単語を入力" required autocomplete="off" />
+  <button type="submit">送信</button>
+</form>
+
+<div id="wordsList"></div>
+<div id="finalSentence"></div>
+
+<button id="exitBtn" style="margin-top:40px;">退出</button>
+
+<script>
+  const socket = io();
+  const nickname = localStorage.getItem('nickname');
+  if(!nickname) {
+    alert('ニックネームがありません。合言葉画面に戻ります。');
+    window.location.href = '/';
+  }
+
+  document.getElementById('nicknameDisplay').textContent = nickname;
+
+  const form = document.getElementById('wordForm');
+  const input = document.getElementById('wordInput');
+  const wordsList = document.getElementById('wordsList');
+  const finalSentence = document.getElementById('finalSentence');
+  const exitBtn = document.getElementById('exitBtn');
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const word = input.value.trim();
+    if(word) {
+      socket.emit('submitWord', { nickname, word });
+      input.value = '';
+      input.focus();
+    }
+  });
+
+  socket.on('updateWords', (words) => {
+    wordsList.innerHTML = '<h3>現在の単語リスト</h3><ul>' +
+      words.map(w => `<li>${w.nickname}: ${w.word}</li>`).join('') + '</ul>';
+    finalSentence.textContent = '';
+  });
+
+  socket.on('finalSentence', (sentence) => {
+    finalSentence.textContent = '完成した文章: ' + sentence;
+  });
+
+  exitBtn.addEventListener('click', () => {
+    socket.emit('exitRoom', nickname);
+    localStorage.removeItem('nickname');
+    alert('退出しました。トップページに戻ります。');
+    window.location.href = '/';
+  });
+
+  socket.emit('joinRoom', nickname);
+</script>
+</body>
+</html>
